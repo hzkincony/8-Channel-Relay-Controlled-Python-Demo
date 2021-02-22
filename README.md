@@ -1,80 +1,96 @@
-# 8-Channel-Network-Relay-Controlled-by-Python
+# Hangzhou Kincony Electronics KC868-H series ethernet relay module: sample code and protocol documentation
 
-This code is a sample project for 8 channel relay control in LAN by Sokcet. It's very easy to use. 
+This repository contains useful protocol documentation, sample and production source code for users of [Hangzhou Kincony Electronics KC868-H series ethernet relay modules](https://www.kincony.com/product/relay-controller).
 
-The software according to KinCony's KC868-H8/W or KC868-H32/W smart controller's protocol. The protocol is easy to use.When 
+The KC868-H series ethernet relay modules are available for purchase in the [KinCony AliExpress store](https://kincony.aliexpress.com):
+- [KC868-H8 ethernet relay module](https://www.aliexpress.com/item/555377986.html)
+- [KC868-H32 ethernet relay module](https://www.aliexpress.com/item/555335460.html)
+- ...and more!
 
-socket connected, send string to controller, the relay will be ON/OFF.You can change it for other devices. Also the software 
+More resources are available at:
+- the [Kincony website](https://www.kincony.com)
+- the [Kincony YouTube channel](https://www.youtube.com/c/KinCony)
+- the [Kincony forum](https://www.kincony.com/forum/)
 
-support not only network ,but also can control by RS232 port. It's same protocol. 
+## Sample code
+
+These code samples demonstrate software control of the Hangzhou Kincony Electronics KC868-H series relay module.
+
+Most samples demonstrate control via the local area network. The same protocol can also be used via a serial connection to the module's RS232 port.
+
+Code samples are available for:
+- [C++ (C++Builder)](https://github.com/hzkincony/32-channel-relay-controller-board-remote-control-by-C-Builder-internet) and [alternative](https://github.com/hzkincony/net_relay_control)
+- [pascal (Delphi)](https://github.com/hzkincony/IP-Network-8-Channel-Relay-Control-Board-Controlled-by-Delphi)
+- [python](https://github.com/hzkincony/8-Channel-Network-Relay-Controlled-By-Python)
+- [Visual Basic .NET](https://github.com/hzkincony/IP-Network-8-Channel-Relay-Control-Board-Controlled-by-VB.net-in-LAN)
 
 
-main protocol for relay control:
+## Plugins and production application source code
+- [Domoticz plugin (python)](https://github.com/hzkincony/Domoticz-KinCony-KC868-Ethernet-WiFi-Relay-Module-Plugin)
+- [ESP8266 based web server for control of KC868-H series devices](https://github.com/hzkincony/BUILD-ESP8266-WEB-SERVER-NODEMCU-FOR-KC868-RELAY-CONTROLLER/blob/master/ESP8266_Web_Server.ino)
+- [ESP8266 based voice control of KC868-H series using Google Home](https://github.com/hzkincony/NodeMCU-ESP8266-32-8-Channel-WiFi-Network-Relay-Board-Voice-Controlled-by-Google-Home-Assistant) 
+- [ESP8266 based voice control of KC868-H series using Amazon Alexa](https://github.com/hzkincony/NodeMCU-ESP8266-32-8-Channel-WiFi-Network-Relay-Board-Voice-Controlled-by-Amazon-Alexa-Echo)
+- [Home Assistant integration: tcp server to mqtt protocol translator](https://github.com/hzkincony/ethernet-relay-control-board-TCP-Socket-to-MQTT-protocol-kit-for-home-assistant)
+- [KinCony KBOX Smart Home Android app](https://github.com/hzkincony/KBOX-Smart-Home-Android-App-LAN-Not-Need-Internet) and [alternative]()
+- [KinCony KBOX Smart Home iOS app](https://github.com/hzkincony/KBOX-Smart-Home-iOS-App-LAN-Not-Need-Internet)
+- [KC868-Hx Smart Controller Debugger (TCP client mode) ](https://github.com/hzkincony/ethernet-relay-module-Debugger-TCP-Client)
+- [KC868-Hx Smart Controller Debugger (TCP server mode) ](https://github.com/hzkincony/ethernet-relay-module-Debugger-TCP-Server)
 
-1.Check the device model
-Send: RELAY-SCAN_DEVICE-NOW
-Return: RELAY-SCAN_DEVICE-CHANNEL_8/CHANNEL_32, OK/ERROR
+## Protocol documentation
 
-2.Open the working mode of the device server:
-Send: RELAY-TEST-NOW
-Return: HOST-TEST-START
+The KC868-H series ethernet relay module acts as a tcp server on your local area network, listening on port 4196 by default. You can find the ip address of your relay module in the dhcp client table of your router.
 
-3.Command set of device initialization:
-Send: RELAY–SCAN_DEVICE–NOW
-Send: RELAY-TEST-NOW
+Any tcp client can initiate the following interactions with the device:
+- connect
+- check the relay module type
+- initialise
+- switch an individual relay on or off
+- check the status of an invididual array
+- check the status of an input trigger
+- check the serial number of the device
+- switch all relays on or off at once
+- check the status of all relays at once
 
-4.Separately control one relay to be ON and OFF:
-Send: RELAY-SET-x (1 byte pack_num), x (1 byte relay serial number), x (1 byte action 0 / 1) Return: RELAY-SET-x (1 byte 
 
-pack_num), X (1 byte relay serial number), x (1 byte action 0 / 1), OK/ERROR
+### Checking the device model
+- request: ```RELAY-SCAN_DEVICE-NOW```
+- response: ```RELAY-SCAN_DEVICE-CHANNEL_8/CHANNEL_32, OK/ERROR```
 
-5.Separately check the current switch status of one relay (as below picture):
-Send: RELAY-READ-x (1 byte pack_num), x (1 byte relay sequence number)
-Return: RELAY-READ-x (1 byte pack_num), x (1 byte relay sequence number), x (1 byte status 0 / 1), OK/ERROR
+### Open the working mode of the device server
+- request: ```RELAY-TEST-NOW```
+- response: ```HOST-TEST-START```
 
-6.Checking trigger input status:
-Send: RELAY-GET_INPUT-x (1 byte pack_num)
-Return: RELAY-GET_INPUT-x (1 byte pack_num), x (1 byte state), OK/ERROR
+### Initialise the device
+- request: ```RELAY–SCAN_DEVICE–NOW```
+- response: ```RELAY-TEST-NOW```
 
-7.Checking the serial number of the device:
-Send: RELAY-HOST-NOW
-Return: HOST-CHKLIC-56a890e6888793c918f151b5 (return the serial number).
+### Switching one relay ON or OFF:
+- request: RELAY-SET-x (1 byte pack_num), x (1 byte relay serial number), x (1 byte action 0 / 1)
+- response: RELAY-SET-x (1 byte pack_num), X (1 byte relay serial number), x (1 byte action 0 / 1), OK/ERROR
 
-8.One-time control of multiple relay on and off:
+### Separately checking the current switch status of one relay (as below picture):
+- request: RELAY-READ-x (1 byte pack_num), x (1 byte relay sequence number)
+- response: RELAY-READ-x (1 byte pack_num), x (1 byte relay sequence number), x (1 byte status 0 / 1), OK/ERROR
+
+### Checking triggering input status:
+- request: RELAY-GET_INPUT-x (1 byte pack_num)
+- response: RELAY-GET_INPUT-x (1 byte pack_num), x (1 byte state), OK/ERROR
+
+### Checking the device's serial number:
+- request: ```RELAY-HOST-NOW```
+- response: HOST-CHKLIC-56a890e6888793c918f151b5 (return the serial number).
+
+### Switching multiple relays ON or OFF at once:
 
 KC868-H8:
-Send: RELAY-SET_ALL-x (1 byte pack_num), D0
-Return: RELAY-SET_ALL-x (1 byte pack_num), D0, OK/ERROR
+- request: RELAY-SET_ALL-x (1 byte pack_num), D0
+- response: RELAY-SET_ALL-x (1 byte pack_num), D0, OK/ERROR
 
 KC868-H32:
-Send: RELAY-SET_ALL-x (1 byte pack_num), D3, D2, D1, D0
-Return: RELAY-SET_ALL-x (1 byte pack_num), D3,D2,D1,D0,OK/ERROR
+- request: RELAY-SET_ALL-x (1 byte pack_num), D3, D2, D1, D0
+- response: RELAY-SET_ALL-x (1 byte pack_num), D3,D2,D1,D0,OK/ERROR
 
-9.Read multiple relays current switch status at a time:
-Send: RELAY-STATE-x (1 byte pack_num)
-Return:
-KC868-H8: RELAY-STATE-x (1 byte pack_num), D0, OK/ERROR
-KC868-H32: RELAY-STATE-x (1 byte pack_num), D3, D2, D1, D0, OK/ERROR
-![Network Relay Board](https://www.kincony.com/wp-content/uploads/2019/03/7-open-light.jpg)
-
-![Pycharm](https://www.kincony.com/wp-content/uploads/2019/03/KC868-H8-relay-control-hello-world-demo-source-code-python-1.jpg)
-
-If you need the hardware in here: 
-
-32 Channel relay controller: https://www.aliexpress.com/store/product/32-Channel-Relay-controller-Module-Ethernet-RS232-PC-
-
-Serial-Port-Smart-Home-Control-tcp-ip/807891_555335460.html?spm=a2g1y.12024536.productList_14403156.pic_0
-
-8 Channel relay controller: https://www.aliexpress.com/store/product/8-Channel-Relay-controller-Module-Ethernet-RS232-PC-Serial-
-
-Port-Smart-Home-Control-tcp-ip/807891_555377986.html?spm=a2g1y.12024536.productList_14403156.pic_2
-
-If you are looking for network relay remote control solutions , see more details can visit KinCony's webpage: 
-
-https://www.kincony.com
-
-If you want to see related videos , you can see our YouTube Channel: https://www.youtube.com/c/KinCony
-
-
-
-https://github.com/hzkincony/IP-Network-8-Channel-Relay-Control-Board-Controlled-by-VB.net-in-LAN.git
+### Read multiple relays current switch status at a time:
+- request: RELAY-STATE-x (1 byte pack_num)
+- response (KC868-H8): RELAY-STATE-x (1 byte pack_num), D0, OK/ERROR
+- response (KC868-H32): RELAY-STATE-x (1 byte pack_num), D3, D2, D1, D0, OK/ERROR
